@@ -1,0 +1,189 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <iostream>
+#include <time.h>
+
+using namespace std;
+
+void limpaTela(){
+    system("CLS");
+}
+
+string retornaPalavraAleatoria(){
+    string palavras[5] = {"bacuri", "carambola", "graviola", "jambo", "tapereba"}; //Vetor com palavras disponíveis
+    
+    int indiceAleatorio = rand() % 5; //Indice gerado no intervalo
+
+    return palavras[indiceAleatorio]; //Exibe a palavra aleatória
+}
+
+string retornaPalavraComMascara(string palavra, int tamanhoDaPalavra){
+
+    int cont = 0;
+    string palavraComMascara;
+
+    while(cont < tamanhoDaPalavra){ //Coloca uma máscara
+        palavraComMascara += "_";
+        cont++;
+    }
+
+    return palavraComMascara;
+}
+
+void exibeStatus(string palavraComMascara, int tamanhoDaPalavra, int tentativasRestantes, string letrasJaArriscadas, string mensagem){
+
+    cout << mensagem;
+    cout << "\nPalavra:" << palavraComMascara << "(Tamanho:" << tamanhoDaPalavra << ")";
+    cout << "\nTentativas Restantes:" << tentativasRestantes;
+
+    int cont; //Exibe as letras arriscadas
+    cout << "\nLetras arriscadas:";
+    for(cont = 0; cont < letrasJaArriscadas.size();cont++){
+        cout << letrasJaArriscadas[cont] << ", ";
+    }
+}
+
+int jogar(int numeroDeJogadores){
+    
+    string palavra; //Palavra a ser adivinhada
+
+        palavra = retornaPalavraAleatoria(); //Palavra a ser adivinhada
+
+    int tamanhoDaPalavra = palavra.size(); //Tamanho da palavra
+    
+    string palavraComMascara = retornaPalavraComMascara(palavra, tamanhoDaPalavra); //Palavra mascarada
+ 
+    ///Variáveis Gerais
+    int tentativas = 0, maximoDeTentativas = 10;            //Número de tentativas e erros
+    int cont = 0;                                           //Auxiliar para laços de repetição
+    char letra;                                             //Letra arriscada pelo usuário
+    int opcao;                                              //Opções finais
+    string letrasJaArriscadas;                              //Acumula as tentativas do jogador
+    string mensagem = "Bem vindo ao jogo!";                 //Feedback do jogador
+    string palavraArriscada;                                //Tentativa de arriscar a palavra completa
+    bool jaDigitouLetra = false, acertouLetra = false;      //Auxiliar para saber se a letra já foi digitada
+
+    while(palavra != palavraComMascara && maximoDeTentativas - tentativas > 0){
+
+        limpaTela();
+        
+        exibeStatus(palavraComMascara, tamanhoDaPalavra, maximoDeTentativas - tentativas, letrasJaArriscadas,mensagem); //Exibe o status atual do jogo
+
+        cout << "\nDigite uma letra (Ou digite 1 para arriscar a palavra):"; //Lê um palpite
+        cin >> letra;
+        
+        if(letra == '1'){ //Se digitar 1 deixa o usuário arriscar a palavra inteira
+            cin >> palavraArriscada;
+            if(palavraArriscada == palavra){
+                 palavraComMascara = palavraArriscada;
+            }else{
+                 tentativas = maximoDeTentativas;
+            }
+        }
+
+        for(cont = 0; cont < tentativas; cont++){ //Percorre as letras já arriscadas
+
+            if(letrasJaArriscadas[cont] == letra){ //Se encontrar a letra
+                mensagem = "Essa letra ja foi digitada!";
+                jaDigitouLetra = true;
+            }
+        }
+        
+        if(jaDigitouLetra == false){ //Se for uma letra nova
+            
+            letrasJaArriscadas += tolower(letra); //Incrementa as letras já arriscadas
+
+            for(cont = 0; cont < tamanhoDaPalavra; cont++){ //Percorre a palavra real e
+                
+                if(palavra[cont] == tolower(letra)){ //Se a letra existir na palavra escondida
+                    
+                    palavraComMascara[cont] = palavra[cont]; //Faço aquela letra aparecer na palavraComMascara
+                    acertouLetra = true;
+                }
+            }
+
+            if(acertouLetra == false){
+                mensagem = "Voce errou uma letra!";
+
+            }else{
+                mensagem = "Voce acertou uma letra!";
+            }
+            
+            tentativas++; //Aumenta uma tentativa realizada
+        }
+        
+        jaDigitouLetra = false; //Reinicia auxiliares
+        acertouLetra = false;
+    }
+
+    if(palavra == palavraComMascara){
+        limpaTela();
+        cout << "Parabens, você venceu!";
+        cout << "\nDeseja reiniciar?";
+        cout << "\n1-Sim";
+        cout << "\n2-Nao";
+        cin >> opcao;
+        return opcao;
+
+    }else{
+        limpaTela();
+        cout << "Ops! Não foi dessa vez! Tente novamente!";
+        cout << "\nDeseja reiniciar?";
+        cout << "\n1-Sim";
+        cout << "\n2-Nao";
+        cin >> opcao;
+        return opcao;
+    }
+}
+
+void menuInicial(){
+    
+    int opcao = 0; //Opção escolhida pelo usuário
+
+    while(opcao < 1 || opcao > 2){ //Enquanto o jogador não digita uma opcao válida, mostra o menu novamente
+        limpaTela();
+        cout << "Bem vindo ao Jogo";
+        cout << "\n1 - Jogar";
+        cout << "\n2 - Sobre";
+        cout << "\n3 - Sair";
+        cout << "\nEscolha uma opcao e tecle ENTER:";
+        
+        cin >> opcao; //Faz a leitura da opcao
+
+        switch(opcao){ //Faz algo de acordo com a opcao escolhida
+            case 1:
+                //Inicia o jogo
+                if(jogar(1) == 1){
+                    menuInicial();
+                }
+                break;
+            case 2:
+                //Mostra informacoes do Jogo
+                cout << "Informacoes do jogo";
+                limpaTela();
+                cout << "Desenvolvido pelo BES 2020 \n";
+                cout << "O intuito é mostrar a programação básica de forma dinâmica e                      interativa. Esperamos que tenham gostado da demonstração.\n";
+                cout << "Att: Ana e toda equipe BES2020\n";
+                cout << "\n1 - Voltar";
+                cout << "\n2 - Sair";
+                cin >> opcao;
+                if(opcao == 1){
+                    menuInicial();
+                }
+
+                break;
+            case 3:
+              //Sai da aplicação
+                cout << "Ate mais!";
+                break;
+        }
+    }
+}
+
+int main(){
+    //Para gerar números realmente aleatórios
+    srand( (unsigned)time(NULL));
+    menuInicial();
+    return 0;
+}
